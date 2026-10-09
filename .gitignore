@@ -1,0 +1,9 @@
+coverage.out
+terraform-provider-metabase
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.lock.hcl
+dist/
+
+.tfc-setup/

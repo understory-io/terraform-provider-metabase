@@ -1,0 +1,52 @@
+[tools]
+go = "1.26.9"
+golangci-lint = "2"
+terraform = "1.9"
+
+[tasks.test]
+description = "Run unit tests with race detector (in-memory fake Metabase, no credentials)"
+run = "go test -race ./..."
+
+[tasks."acc:up"]
+description = "Start a local Metabase in docker and print METABASE_URL / METABASE_API_KEY exports"
+run = "scripts/acc-metabase.sh"
+
+[tasks."test:acc"]
+description = "Run the same tests against a real Metabase (eval \"$(mise run acc:up)\" first)"
+env = { TF_ACC = "1" }
+run = "go test -race -count=1 -timeout 30m ./internal/provider/..."
+
+[tasks.vet]
+description = "Run go vet"
+run = "go vet ./..."
+
+[tasks.lint]
+description = "Run golangci-lint"
+run = "golangci-lint run ./..."
+
+[tasks.vuln]
+description = "Run govulncheck"
+run = "go run golang.org/x/vuln/cmd/govulncheck@latest ./..."
+
+[tasks.coverage]
+description = "Run tests with coverage and print a summary"
+run = """
+go test -race -coverprofile=coverage.out ./...
+go tool cover -func=coverage.out | tail -n 1
+"""
+
+[tasks.build]
+description = "Build the provider binary"
+run = "go build -o terraform-provider-metabase ."
+
+[tasks."docs:check"]
+description = "Verify generated provider docs are up to date"
+run = "go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest validate"
+
+[tasks."docs:gen"]
+description = "Regenerate provider docs from schema and examples"
+run = "go run github.com/hashicorp/terraform-plugin-docs/cmd/tfplugindocs@latest generate"
+
+[tasks.ci]
+description = "Run all CI checks except the docker acceptance job"
+depends = ["test", "vet", "lint", "vuln", "coverage", "build"]

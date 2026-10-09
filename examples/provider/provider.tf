@@ -1,7 +1,7 @@
 terraform {
   required_providers {
     metabase = {
-      source = "understory/metabase"
+      source = "registry.terraform.io/understory-io/metabase"
     }
   }
 }

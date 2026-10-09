@@ -1,12 +1,15 @@
 # terraform-provider-metabase
 
-A small, private Terraform provider for **who can see what** in Metabase:
-collections, permission groups, group memberships, and the collection and data
-permission graphs. Used by
-[`infrastructure-metabase`](https://github.com/understory-io/infrastructure-metabase);
-published to the **TFC private registry** as `understory/metabase`, the same
-way as
-[`terraform-provider-hubspot`](https://github.com/understory-io/terraform-provider-hubspot).
+A small Terraform provider for **who can see what** in Metabase: collections,
+permission groups, group memberships, and the collection and data permission
+graphs. Used by Understory's `infrastructure-metabase`, which applies it
+through forest, and published on the **public** Terraform registry as
+`understory-io/metabase`.
+
+Public because forest runs OpenTofu in an ephemeral work dir with no registry
+credentials: destination metadata only reaches it as `TF_VAR_*`, which feeds
+variables, not provider installation. The public registry needs neither. The
+same route as `terraform-provider-shiitake`.
 
 Dashboards and cards are not here. They are content, and live in
 [`canopy-metabase`](https://github.com/understory-io/canopy-metabase).
@@ -17,7 +20,9 @@ Dashboards and cards are not here. They are content, and live in
 terraform {
   required_providers {
     metabase = {
-      source  = "app.terraform.io/understory/metabase"
+      # The host is required under OpenTofu, which forest runs: an unqualified
+      # source resolves against registry.opentofu.org, where this is not published.
+      source  = "registry.terraform.io/understory-io/metabase"
       version = "~> 0.1"
     }
   }
@@ -146,11 +151,23 @@ mb-tfacc` throws it away.
 
 ## Releasing
 
-Exactly as in `terraform-provider-hubspot`: a conventional commit on `main` →
-release-please PR → merge → tag `vX.Y.Z` → goreleaser builds and signs with the
-org's provider-signing GPG key → `scripts/tfc-upload-version.sh` uploads the
-version to the `understory` private registry. Tags pushed by release-please's
-`GITHUB_TOKEN` do not trigger the goreleaser job, so push the tag by hand:
+As in `terraform-provider-hubspot`: a conventional commit on `main` →
+release-please PR → merge → tag `vX.Y.Z` → goreleaser builds the platform zips
+and signs `SHA256SUMS` with the org's provider-signing GPG key
+(`B5B77F14A8B186B7`) → a GitHub release. registry.terraform.io picks the
+release up from the repository's release webhook and publishes it as
+`understory-io/metabase`.
+
+`scripts/tfc-upload-version.sh` also uploads the version to the TFC private
+registry as `understory/metabase`. That copy predates the public one and is
+redundant now; it is kept until nothing refers to it.
+
+The namespace differs between the two registries: the public one derives it
+from the **GitHub org** (`understory-io`), the TFC one from the **TFC
+organisation** (`understory`).
+
+Tags pushed by release-please's `GITHUB_TOKEN` do not trigger the goreleaser
+job, so push the tag by hand:
 
 ```sh
 git push origin refs/tags/vX.Y.Z

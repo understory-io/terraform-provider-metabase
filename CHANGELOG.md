@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/understory-io/terraform-provider-metabase/compare/v0.1.0...v0.1.1) (2026-10-09)
+
+
+### Bug Fixes
+
+* serve under understory-io/metabase for the public registry ([#6](https://github.com/understory-io/terraform-provider-metabase/issues/6)) ([06081b4](https://github.com/understory-io/terraform-provider-metabase/commit/06081b4809506ed366965b4932c74e1f9af52d7e))
+
 ## 0.1.0 (2026-10-09)
 
 

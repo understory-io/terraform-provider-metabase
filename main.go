@@ -18,7 +18,7 @@ func main() {
 	flag.Parse()
 
 	opts := providerserver.ServeOpts{
-		Address: "registry.terraform.io/understory/metabase",
+		Address: "registry.terraform.io/understory-io/metabase",
 		Debug:   debug,
 	}
 

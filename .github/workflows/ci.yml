@@ -1,0 +1,38 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v4
+
+      - name: CI
+        run: mise run ci
+
+  # The same resource tests, against a real Metabase in docker at the version
+  # Understory runs: the in-memory fake cannot show what Metabase itself does
+  # under parallel writes (see CreateCollection in internal/metabase).
+  acceptance:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: jdx/mise-action@v4
+
+      - name: Start Metabase
+        run: scripts/acc-metabase.sh > "$RUNNER_TEMP/acc.env"
+
+      - name: Acceptance tests
+        run: |
+          set -a
+          # shellcheck disable=SC1091
+          source "$RUNNER_TEMP/acc.env"
+          mise run test:acc
